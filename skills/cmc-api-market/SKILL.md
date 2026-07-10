@@ -159,13 +159,14 @@ See [use-cases.md](references/use-cases.md) for goal-based guidance on which end
 }
 ```
 
-### Rate Limit Headers
+### Credit and Rate Limit Tracking
 
-Check these response headers to monitor usage:
+Credit usage is **not** returned in response headers. Track it from the response body and the key-info endpoint:
 
-1. `X-CMC_PRO_API_KEY_CREDITS_USED` - Credits consumed
-2. `X-CMC_PRO_API_KEY_CREDITS_REMAINING` - Credits left
-3. `X-CMC_PRO_API_KEY_RATE_LIMIT` - Requests per minute limit
+1. **Per-call credits.** Read `status.credit_count` from the JSON body. It is present on every response, including errors.
+2. **Plan limits and remaining usage.** Call `GET /v1/key/info`, which returns your `plan` limits (`credit_limit_monthly`, `rate_limit_minute`) and current `usage` (`current_minute.requests_left`, `current_day.credits_left`, `current_month.credits_left`).
+
+Requests per minute and daily/monthly credit caps depend on your subscription plan. Exceeding them returns HTTP 429.
 
 ## Response Format
 
