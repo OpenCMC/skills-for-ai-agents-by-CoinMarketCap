@@ -16,7 +16,7 @@ This skill covers market-wide cryptocurrency data including global metrics, sent
 
 ## Authentication
 
-All requests require the `X-CMC_PRO_API_KEY` header.
+Authenticated requests pass the `X-CMC_PRO_API_KEY` header. A key unlocks the full endpoint catalog and higher rate limits.
 
 ```bash
 curl -X GET "https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest" \
@@ -24,6 +24,16 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest" 
 ```
 
 Get your API key at: https://pro.coinmarketcap.com/login
+
+### Keyless Public API (no key)
+
+Many read endpoints are also reachable with **no API key** by prefixing the path with `/public-api` (GET only, shared IP-based rate limit, identical JSON envelope):
+
+```bash
+curl "https://pro-api.coinmarketcap.com/public-api/v1/global-metrics/quotes/latest"
+```
+
+Add your key and drop the `/public-api` prefix for the full catalog and higher limits.
 
 ## Base URL
 

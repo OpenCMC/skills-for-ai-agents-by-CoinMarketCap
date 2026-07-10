@@ -16,7 +16,7 @@ This skill covers the CoinMarketCap Cryptocurrency API endpoints for retrieving 
 
 ## Authentication
 
-All requests require an API key in the header.
+Authenticated requests pass an API key in the header. A key unlocks the full endpoint catalog and higher rate limits.
 
 ```bash
 curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest" \
@@ -24,6 +24,16 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest
 ```
 
 Get your API key at: https://pro.coinmarketcap.com/login
+
+### Keyless Public API (no key)
+
+Many read endpoints are also reachable with **no API key** by prefixing the path with `/public-api` (GET only, shared IP-based rate limit, identical JSON envelope):
+
+```bash
+curl "https://pro-api.coinmarketcap.com/public-api/v1/cryptocurrency/listings/latest?limit=10"
+```
+
+Some endpoints still require a key on the keyless root and return `error_code` 1005 (for example `/v2/cryptocurrency/quotes/latest`). Add your key and drop the `/public-api` prefix for the full catalog and higher limits.
 
 ## Base URL
 

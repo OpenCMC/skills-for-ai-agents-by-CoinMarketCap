@@ -16,15 +16,25 @@ This skill covers CoinMarketCap APIs for centralized cryptocurrency exchanges (B
 
 ## Authentication
 
-All requests require an API key in the header.
+Authenticated requests pass an API key in the header. A key unlocks the full endpoint catalog and higher rate limits.
 
 1. Get your API key at https://pro.coinmarketcap.com/login
-2. Include the header `X-CMC_PRO_API_KEY: your-api-key` in all requests
+2. Include the header `X-CMC_PRO_API_KEY: your-api-key` on authenticated requests
 
 ```bash
 curl -X GET "https://pro-api.coinmarketcap.com/v1/exchange/map" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
+
+### Keyless Public API (no key)
+
+Many read endpoints are also reachable with **no API key** by prefixing the path with `/public-api` (GET only, shared IP-based rate limit, identical JSON envelope):
+
+```bash
+curl "https://pro-api.coinmarketcap.com/public-api/v1/exchange/map?limit=5"
+```
+
+Add your key and drop the `/public-api` prefix for the full catalog and higher limits.
 
 ## Base URL
 
