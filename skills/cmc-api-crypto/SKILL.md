@@ -19,7 +19,7 @@ This skill covers the CoinMarketCap Cryptocurrency API endpoints for retrieving 
 All requests require an API key in the header.
 
 ```bash
-curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest" \
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/listings/latest" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
@@ -55,7 +55,7 @@ See [use-cases.md](references/use-cases.md) for goal-based guidance on which end
 | GET /v1/cryptocurrency/categories | List all categories with market metrics | [categories.md](references/categories.md) |
 | GET /v1/cryptocurrency/category | Single category details | [categories.md](references/categories.md) |
 | GET /v1/cryptocurrency/listings/historical | Historical listings snapshot | [listings.md](references/listings.md) |
-| GET /v1/cryptocurrency/listings/latest | Current listings with market data | [listings.md](references/listings.md) |
+| GET /v3/cryptocurrency/listings/latest | Current listings with market data | [listings.md](references/listings.md) |
 | GET /v1/cryptocurrency/listings/new | Newly added cryptocurrencies | [listings.md](references/listings.md) |
 | GET /v1/cryptocurrency/map | Map names/symbols to CMC IDs | [map.md](references/map.md) |
 | GET /v1/cryptocurrency/trending/gainers-losers | Top gainers and losers | [trending.md](references/trending.md) |
@@ -66,7 +66,7 @@ See [use-cases.md](references/use-cases.md) for goal-based guidance on which end
 | GET /v2/cryptocurrency/ohlcv/historical | Historical OHLCV candles | [ohlcv.md](references/ohlcv.md) |
 | GET /v2/cryptocurrency/ohlcv/latest | Latest OHLCV data | [ohlcv.md](references/ohlcv.md) |
 | GET /v2/cryptocurrency/price-performance-stats/latest | Price performance stats | [price-performance.md](references/price-performance.md) |
-| GET /v2/cryptocurrency/quotes/latest | Latest price quotes | [quotes.md](references/quotes.md) |
+| GET /v3/cryptocurrency/quotes/latest | Latest price quotes | [quotes.md](references/quotes.md) |
 | GET /v3/cryptocurrency/quotes/historical | Historical price quotes | [quotes.md](references/quotes.md) |
 
 ## Common Workflows
@@ -74,7 +74,7 @@ See [use-cases.md](references/use-cases.md) for goal-based guidance on which end
 ### Get Token Price by Symbol
 
 1. First, map the symbol to a CMC ID using `/v1/cryptocurrency/map`
-2. Then fetch the price using `/v2/cryptocurrency/quotes/latest`
+2. Then fetch the price using `/v3/cryptocurrency/quotes/latest`
 
 ```bash
 # Step 1: Get CMC ID for ETH
@@ -82,14 +82,16 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?symbol=ETH"
   -H "X-CMC_PRO_API_KEY: your-api-key"
 
 # Step 2: Get price quote (using id=1027 for ETH)
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=1027" \
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/latest?id=1027" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
+
+The v3 response returns `data` as an array sorted by ID, and `quote` as an array with one object per `convert` currency, each carrying that currency's `id` and `symbol`. Read the price from the `quote` entry whose `symbol` is `USD` (the default). See [quotes.md](references/quotes.md).
 
 ### Get Top 100 Coins by Market Cap
 
 ```bash
-curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=100&sort=market_cap" \
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/listings/latest?limit=100&sort=market_cap" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
@@ -163,6 +165,8 @@ All responses follow this structure:
   "data": { ... }
 }
 ```
+
+`/v3/cryptocurrency/listings/latest` and `/v3/cryptocurrency/quotes/latest` return `error_code` as a string (`"0"` on success) and `error_message` as an empty string, so compare `error_code` as a string or convert it first.
 
 ## Reference Files
 

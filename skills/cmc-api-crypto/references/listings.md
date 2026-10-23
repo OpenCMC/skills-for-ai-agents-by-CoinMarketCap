@@ -2,7 +2,7 @@
 
 ## Listings Latest
 
-**Path:** `GET /v1/cryptocurrency/listings/latest`
+**Path:** `GET /v3/cryptocurrency/listings/latest`
 
 **Description:** Returns a paginated list of all active cryptocurrencies with latest market data. This is the primary endpoint for getting a ranked list of coins by market cap, volume, or other metrics.
 
@@ -24,11 +24,13 @@
 | percent_change_24h_max | number | No | Filter by maximum 24h percent change |
 | convert | string | No | Currency to convert prices (e.g., USD, EUR, BTC) |
 | convert_id | string | No | CMC ID of currency to convert to |
-| sort | string | No | Sort field: market_cap, name, symbol, date_added, price, circulating_supply, total_supply, max_supply, num_market_pairs, volume_24h, percent_change_1h, percent_change_24h, percent_change_7d, market_cap_by_total_supply_strict, volume_7d, volume_30d. Default: market_cap |
+| sort | string | No | Sort field: market_cap, market_cap_strict, name, symbol, date_added, price, circulating_supply, total_supply, max_supply, num_market_pairs, volume_24h, percent_change_1h, percent_change_24h, percent_change_7d, market_cap_by_total_supply_strict, volume_7d, volume_30d. Default: market_cap |
 | sort_dir | string | No | Sort direction: asc, desc. Default: desc |
 | cryptocurrency_type | string | No | Filter by type: all, coins, tokens. Default: all |
 | tag | string | No | Filter by tag (e.g., defi, filesharing) |
 | aux | string | No | Additional fields to include: num_market_pairs, cmc_rank, date_added, tags, platform, max_supply, circulating_supply, total_supply, market_cap_by_total_supply, volume_24h_reported, volume_7d, volume_7d_reported, volume_30d, volume_30d_reported, is_market_cap_included_in_calc |
+
+**Note:** The `_min` and `_max` filters apply to the page that `start` and `limit` select, not to the whole list. `limit=100&price_max=1` returns only the coins under $1 among the first 100 by the chosen sort, so usually fewer than 100. To filter the whole market, request `limit=5000` or page through with `start`.
 
 ### Response Fields
 
@@ -43,25 +45,34 @@
 | data[].circulating_supply | Circulating supply |
 | data[].total_supply | Total supply |
 | data[].max_supply | Maximum supply |
+| data[].infinite_supply | Has infinite supply |
 | data[].last_updated | Last data update |
 | data[].date_added | Date added to CMC |
-| data[].tags | Array of tags |
+| data[].tags | Array of tag slugs |
 | data[].platform | Platform details for tokens |
-| data[].quote.USD.price | Current USD price |
-| data[].quote.USD.volume_24h | 24h trading volume |
-| data[].quote.USD.volume_change_24h | 24h volume change % |
-| data[].quote.USD.percent_change_1h | 1h price change % |
-| data[].quote.USD.percent_change_24h | 24h price change % |
-| data[].quote.USD.percent_change_7d | 7d price change % |
-| data[].quote.USD.market_cap | Market cap |
-| data[].quote.USD.market_cap_dominance | Market cap dominance % |
-| data[].quote.USD.fully_diluted_market_cap | Fully diluted market cap |
-| data[].quote.USD.last_updated | Quote last updated |
+| data[].quote[] | One object per `convert` currency |
+| data[].quote[].id | CMC ID of the convert currency (2781 for USD) |
+| data[].quote[].symbol | Symbol of the convert currency (e.g., USD) |
+| data[].quote[].price | Current price |
+| data[].quote[].volume_24h | 24h trading volume |
+| data[].quote[].volume_change_24h | 24h volume change % |
+| data[].quote[].cex_volume_24h | 24h volume on centralized exchanges |
+| data[].quote[].dex_volume_24h | 24h volume on decentralized exchanges |
+| data[].quote[].percent_change_1h | 1h price change % |
+| data[].quote[].percent_change_24h | 24h price change % |
+| data[].quote[].percent_change_7d | 7d price change % |
+| data[].quote[].percent_change_30d | 30d price change % |
+| data[].quote[].percent_change_60d | 60d price change % |
+| data[].quote[].percent_change_90d | 90d price change % |
+| data[].quote[].market_cap | Market cap |
+| data[].quote[].market_cap_dominance | Market cap dominance % |
+| data[].quote[].fully_diluted_market_cap | Fully diluted market cap |
+| data[].quote[].last_updated | Quote last updated |
 
 ### Example
 
 ```bash
-curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=100&sort=market_cap&convert=USD" \
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/listings/latest?limit=100&sort=market_cap&convert=USD" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
@@ -70,9 +81,10 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest
 ```json
 {
   "status": {
-    "timestamp": "2024-01-15T12:00:00.000Z",
-    "error_code": 0,
-    "error_message": null,
+    "timestamp": "2026-10-23T08:29:58.657Z",
+    "error_code": "0",
+    "error_message": "",
+    "elapsed": 9,
     "credit_count": 1
   },
   "data": [
@@ -82,28 +94,36 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest
       "symbol": "BTC",
       "slug": "bitcoin",
       "cmc_rank": 1,
-      "num_market_pairs": 10892,
-      "circulating_supply": 19590000,
-      "total_supply": 19590000,
+      "num_market_pairs": 12769,
+      "circulating_supply": 20102287,
+      "total_supply": 20102287,
       "max_supply": 21000000,
-      "last_updated": "2024-01-15T12:00:00.000Z",
+      "infinite_supply": false,
+      "last_updated": "2026-10-23T08:29:00.000Z",
       "date_added": "2010-07-13T00:00:00.000Z",
       "tags": ["mineable", "pow", "sha-256"],
       "platform": null,
-      "quote": {
-        "USD": {
-          "price": 42567.89,
-          "volume_24h": 23456789012,
-          "volume_change_24h": 12.34,
-          "percent_change_1h": 0.23,
-          "percent_change_24h": 2.45,
-          "percent_change_7d": 5.67,
-          "market_cap": 834567890123,
-          "market_cap_dominance": 52.3,
-          "fully_diluted_market_cap": 893925690000,
-          "last_updated": "2024-01-15T12:00:00.000Z"
+      "quote": [
+        {
+          "id": 2781,
+          "symbol": "USD",
+          "price": 81696.41087933285,
+          "volume_24h": 27172704242.815926,
+          "volume_change_24h": -28.1677,
+          "cex_volume_24h": 27142341550.93963,
+          "dex_volume_24h": 30362691.87629619,
+          "percent_change_1h": 0.08363108,
+          "percent_change_24h": -0.31197322,
+          "percent_change_7d": -0.56646283,
+          "percent_change_30d": -5.17341566,
+          "percent_change_60d": 6.22956932,
+          "percent_change_90d": 27.78018829,
+          "market_cap": 1642284698366.2712,
+          "market_cap_dominance": 59.9972,
+          "fully_diluted_market_cap": 1715624628465.99,
+          "last_updated": "2026-10-23T08:29:00.000Z"
         }
-      }
+      ]
     }
   ]
 }
