@@ -6,25 +6,28 @@ This guide helps you choose the right endpoint and parameters for common goals.
 
 **Goal:** Fetch the latest price for a specific cryptocurrency.
 
-**Endpoint:** `/v2/cryptocurrency/quotes/latest`
+**Endpoint:** `/v3/cryptocurrency/quotes/latest`
 
 **Steps:**
 1. If you have the CMC ID, call directly with `id` parameter
 2. If you only have the symbol, use `symbol` parameter (but note: symbols can collide)
 3. For tokens, you can also use the contract address via `/v2/cryptocurrency/info` first
+4. Read the price from `data[].quote[]`: the entry whose `symbol` matches your `convert` currency (USD by default)
 
 **Example:**
 ```bash
 # By ID (most reliable)
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=1" \
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/latest?id=1" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 
-# By symbol (may return multiple if symbol collides)
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?symbol=BTC" \
+# By symbol (returns every coin with that symbol, including inactive ones)
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/latest?symbol=BTC" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
 **Key parameters:** `id`, `symbol`, `convert` (for different quote currencies)
+
+**Watch out:** `data` and `quote` are both arrays. A symbol lookup returns several coins sorted by ID, so pick the one you want by `id` or `cmc_rank` rather than taking the first entry.
 
 ---
 
@@ -75,7 +78,7 @@ curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?address=0x
 
 **Goal:** Fetch a ranked list of the largest cryptocurrencies.
 
-**Endpoint:** `/v1/cryptocurrency/listings/latest`
+**Endpoint:** `/v3/cryptocurrency/listings/latest`
 
 **Steps:**
 1. Call with `limit=100` and `sort=market_cap`
@@ -83,7 +86,7 @@ curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?address=0x
 
 **Example:**
 ```bash
-curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=100&sort=market_cap" \
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/listings/latest?limit=100&sort=market_cap" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
@@ -95,20 +98,23 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest
 
 **Goal:** Filter cryptocurrencies by price (e.g., all coins under $1).
 
-**Endpoint:** `/v1/cryptocurrency/listings/latest`
+**Endpoint:** `/v3/cryptocurrency/listings/latest`
 
 **Steps:**
 1. Use `price_min` and `price_max` parameters
 2. Combine with `market_cap_min` to filter out dust coins
+3. Set `limit=5000` so the filters cover the top 5000 coins by market cap
 
 **Example:**
 ```bash
 # Coins between $0.10 and $1.00 with at least $10M market cap
-curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?price_min=0.1&price_max=1&market_cap_min=10000000&limit=100" \
+curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/listings/latest?price_min=0.1&price_max=1&market_cap_min=10000000&limit=5000" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
 **Key parameters:** `price_min`, `price_max`, `market_cap_min`, `volume_24h_min`
+
+**Watch out:** The filters apply to the page that `start` and `limit` select, not to the whole list. With `limit=100` you only get the matching coins among the top 100, so a small `limit` can return few or no results.
 
 ---
 
@@ -281,11 +287,11 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=605
 
 | Goal | Endpoint | Key Parameter |
 |------|----------|---------------|
-| Current price | `/v2/cryptocurrency/quotes/latest` | `id` or `symbol` |
+| Current price | `/v3/cryptocurrency/quotes/latest` | `id` or `symbol` |
 | Symbol to ID | `/v1/cryptocurrency/map` | `symbol` |
 | Contract to ID | `/v2/cryptocurrency/info` | `address` |
-| Top coins | `/v1/cryptocurrency/listings/latest` | `sort=market_cap` |
-| Price filter | `/v1/cryptocurrency/listings/latest` | `price_min`, `price_max` |
+| Top coins | `/v3/cryptocurrency/listings/latest` | `sort=market_cap` |
+| Price filter | `/v3/cryptocurrency/listings/latest` | `price_min`, `price_max`, `limit=5000` |
 | Historical price | `/v3/cryptocurrency/quotes/historical` | `time_start`, `time_end` |
 | OHLCV chart data | `/v2/cryptocurrency/ohlcv/historical` | `interval`, `count` |
 | Trading pairs | `/v2/cryptocurrency/market-pairs/latest` | `id`, `category` |
