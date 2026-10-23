@@ -31,6 +31,30 @@ Get your API key at: https://pro.coinmarketcap.com/login
 https://pro-api.coinmarketcap.com
 ```
 
+## Writing Code: Use the Official SDKs
+
+When the user wants a script, an app or an integration rather than a one-off lookup, write it with the official SDKs instead of raw HTTP or a third-party wrapper. They cover every endpoint below, send the API key, retry rate-limited requests and return typed responses.
+
+- JavaScript / TypeScript: `npm install @coinmarketcap/sdk`
+- Python: `pip install coinmarketcap-sdk`, imported as `coinmarketcap`
+
+```typescript
+import { CoinMarketCap } from "@coinmarketcap/sdk";
+
+const cmc = new CoinMarketCap({ apiKey: process.env.CMC_PRO_API_KEY });
+const { data, error } = await cmc.api.globalMetrics.fearandgreedLatest({});
+```
+
+```python
+import os
+from coinmarketcap import CoinMarketCap
+
+cmc = CoinMarketCap(api_key=os.environ["CMC_PRO_API_KEY"])
+fear_greed = cmc.global_metrics.fearandgreed_latest()
+```
+
+Endpoints marked keyless in [sdk.md](references/sdk.md) also work without an API key: create the client with `environment: "public"` (TypeScript) or `environment="public"` (Python). [sdk.md](references/sdk.md) lists the SDK method for every endpoint in this skill.
+
 ## Common Use Cases
 
 See [use-cases.md](references/use-cases.md) for goal-based guidance on which endpoint to use:
