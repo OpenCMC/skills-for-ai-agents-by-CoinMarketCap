@@ -37,6 +37,7 @@ When the user wants a script, an app or an integration rather than a one-off loo
 
 - JavaScript / TypeScript: `npm install @coinmarketcap/sdk`
 - Python: `pip install coinmarketcap-sdk`, imported as `coinmarketcap`
+- Go: `go get github.com/OpenCMC/coinmarketcap-api-go/v5`, imported as `coinmarketcap`
 
 ```typescript
 import { CoinMarketCap } from "@coinmarketcap/sdk";
@@ -53,7 +54,26 @@ cmc = CoinMarketCap(api_key=os.environ["CMC_PRO_API_KEY"])
 fear_greed = cmc.global_metrics.fearandgreed_latest()
 ```
 
-Endpoints marked keyless in [sdk.md](references/sdk.md) also work without an API key: create the client with `environment: "public"` (TypeScript) or `environment="public"` (Python). [sdk.md](references/sdk.md) lists the SDK method for every endpoint in this skill.
+```go
+import (
+	"context"
+	"log"
+	"os"
+
+	"github.com/OpenCMC/coinmarketcap-api-go/v5"
+)
+
+cmc, err := coinmarketcap.New(coinmarketcap.WithAPIKey(os.Getenv("CMC_PRO_API_KEY")))
+if err != nil {
+	log.Fatal(err)
+}
+fearGreed, err := cmc.GlobalMetrics.FearandgreedLatest(context.Background())
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+Endpoints marked keyless in [sdk.md](references/sdk.md) also work without an API key: create the client with `environment: "public"` (TypeScript), `environment="public"` (Python) or `coinmarketcap.WithEnvironment(coinmarketcap.EnvironmentPublic)` (Go). [sdk.md](references/sdk.md) lists the SDK method for every endpoint in this skill.
 
 ## Common Use Cases
 

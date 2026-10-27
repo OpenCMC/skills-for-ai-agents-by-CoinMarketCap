@@ -37,6 +37,7 @@ When the user wants a script, an app or an integration rather than a one-off loo
 
 - JavaScript / TypeScript: `npm install @coinmarketcap/sdk`
 - Python: `pip install coinmarketcap-sdk`, imported as `coinmarketcap`
+- Go: `go get github.com/OpenCMC/coinmarketcap-api-go/v5`, imported as `coinmarketcap`
 
 ```typescript
 import { CoinMarketCap } from "@coinmarketcap/sdk";
@@ -58,7 +59,29 @@ price = cmc.token.price(
 )
 ```
 
-Endpoints marked keyless in [sdk.md](references/sdk.md) also work without an API key: create the client with `environment: "public"` (TypeScript) or `environment="public"` (Python). [sdk.md](references/sdk.md) lists the SDK method for every endpoint in this skill.
+```go
+import (
+	"context"
+	"log"
+	"os"
+
+	"github.com/OpenCMC/coinmarketcap-api-go/v5"
+)
+
+cmc, err := coinmarketcap.New(coinmarketcap.WithAPIKey(os.Getenv("CMC_PRO_API_KEY")))
+if err != nil {
+	log.Fatal(err)
+}
+price, err := cmc.Token.Price(context.Background(), &coinmarketcap.TokenPriceParams{
+	Platform: coinmarketcap.String("ethereum"),
+	Address:  coinmarketcap.String("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+})
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+Endpoints marked keyless in [sdk.md](references/sdk.md) also work without an API key: create the client with `environment: "public"` (TypeScript), `environment="public"` (Python) or `coinmarketcap.WithEnvironment(coinmarketcap.EnvironmentPublic)` (Go). [sdk.md](references/sdk.md) lists the SDK method for every endpoint in this skill.
 
 ## POST vs GET Endpoints
 
