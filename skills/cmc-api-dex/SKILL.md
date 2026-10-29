@@ -31,6 +31,58 @@ Get your API key at: https://pro.coinmarketcap.com/login
 https://pro-api.coinmarketcap.com
 ```
 
+## Writing Code: Use the Official SDKs
+
+When the user wants a script, an app or an integration rather than a one-off lookup, write it with the official SDKs instead of raw HTTP or a third-party wrapper. They cover every endpoint below, send the API key, retry rate-limited requests and return typed responses.
+
+- JavaScript / TypeScript: `npm install @coinmarketcap/sdk`
+- Python: `pip install coinmarketcap-sdk`, imported as `coinmarketcap`
+- Go: `go get github.com/OpenCMC/coinmarketcap-api-go/v5`, imported as `coinmarketcap`
+
+```typescript
+import { CoinMarketCap } from "@coinmarketcap/sdk";
+
+const cmc = new CoinMarketCap({ apiKey: process.env.CMC_PRO_API_KEY });
+const { data, error } = await cmc.api.token.price({
+  query: { platform: "ethereum", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" },
+});
+```
+
+```python
+import os
+from coinmarketcap import CoinMarketCap
+
+cmc = CoinMarketCap(api_key=os.environ["CMC_PRO_API_KEY"])
+price = cmc.token.price(
+    platform="ethereum",
+    address="0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+)
+```
+
+```go
+import (
+	"context"
+	"log"
+	"os"
+
+	"github.com/OpenCMC/coinmarketcap-api-go/v5"
+)
+
+cmc, err := coinmarketcap.New(coinmarketcap.WithAPIKey(os.Getenv("CMC_PRO_API_KEY")))
+if err != nil {
+	log.Fatal(err)
+}
+price, err := cmc.Token.Price(context.Background(), &coinmarketcap.TokenPriceParams{
+	Platform: coinmarketcap.String("ethereum"),
+	Address:  coinmarketcap.String("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+})
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+Endpoints marked keyless in [sdk.md](references/sdk.md) also work without an API key: create the client with `environment: "public"` (TypeScript), `environment="public"` (Python) or `coinmarketcap.WithEnvironment(coinmarketcap.EnvironmentPublic)` (Go). [sdk.md](references/sdk.md) lists the SDK method for every endpoint in this skill.
+
 ## POST vs GET Endpoints
 
 Many DEX endpoints use POST for complex queries with body parameters. Always check the method:

@@ -1,0 +1,112 @@
+# Official SDKs
+
+Use the official SDKs when you write code for the user. They are generated from the CoinMarketCap OpenAPI spec, so they cover every endpoint in this skill. They send the API key, retry `429` and `5xx` responses with backoff, and return typed responses.
+
+| Language | Install | Import |
+|----------|---------|--------|
+| JavaScript / TypeScript | `npm install @coinmarketcap/sdk` | `import { CoinMarketCap } from "@coinmarketcap/sdk"` |
+| Python 3.10+ | `pip install coinmarketcap-sdk` | `from coinmarketcap import CoinMarketCap` |
+| Go 1.24+ | `go get github.com/OpenCMC/coinmarketcap-api-go/v5` | `import "github.com/OpenCMC/coinmarketcap-api-go/v5"` (package `coinmarketcap`) |
+
+## Create a client
+
+```typescript
+const cmc = new CoinMarketCap({ apiKey: process.env.CMC_PRO_API_KEY });
+// Keyless endpoints work without a key:
+const keyless = new CoinMarketCap({ environment: "public" });
+```
+
+```python
+cmc = CoinMarketCap(api_key=os.environ["CMC_PRO_API_KEY"])
+# Keyless endpoints work without a key:
+keyless = CoinMarketCap(environment="public")
+```
+
+```go
+cmc, err := coinmarketcap.New(coinmarketcap.WithAPIKey(os.Getenv("CMC_PRO_API_KEY")))
+// Keyless endpoints work without a key:
+keyless, err := coinmarketcap.New(coinmarketcap.WithEnvironment(coinmarketcap.EnvironmentPublic))
+```
+
+## Method for each endpoint
+
+TypeScript methods hang off `cmc.api`, Python and Go methods off the client: `cmc.api.cryptocurrency.quotesLatest(...)`, `cmc.cryptocurrency.quotes_latest(...)` and `cmc.Cryptocurrency.QuotesLatest(ctx, ...)`. The Keyless column shows which endpoints also work with the keyless client.
+
+| Endpoint | Summary | TypeScript (`cmc.api.`) | Python (`cmc.`) | Go (`cmc.`) | Keyless |
+|----------|---------|-------------------------|-----------------|-------------|---------|
+| `GET /v1/dex/token` | Get token detail | `token.token` | `token.token` | `Token.Token` | Yes |
+| `GET /v1/dex/token/price` | Get token price | `token.price` | `token.price` | `Token.Price` | Yes |
+| `POST /v1/dex/token/price/batch` | Batch get token prices | `token.batchGetTokenPrice` | `token.batch_get_token_price` | `Token.BatchGetTokenPrice` | No |
+| `GET /v1/dex/token/pools` | Get token pools | `token.pools` | `token.pools` | `Token.Pools` | Yes |
+| `GET /v1/dex/token-liquidity/query` | Query token liquidity | `token.queryTokenLiquidity` | `token.query_token_liquidity` | `Token.QueryTokenLiquidity` | Yes |
+| `POST /v1/dex/tokens/batch-query` | Batch query tokens | `token.batchQueryTokens` | `token.batch_query_tokens` | `Token.BatchQueryTokens` | No |
+| `GET /v1/dex/tokens/transactions` | Get swap list | `token.swapList` | `token.swap_list` | `Token.SwapList` | Yes |
+| `POST /v1/dex/tokens/trending/list` | Get trending tokens | `token.trendingList` | `token.trending_list` | `Token.TrendingList` | No |
+| `GET /v4/dex/pairs/quotes/latest` | Quotes Latest | `token.latestPairsQuotes` | `token.latest_pairs_quotes` | `Token.LatestPairsQuotes` | Yes |
+| `GET /v4/dex/spot-pairs/latest` | Pairs Listings Latest | `token.spotPairsLatest` | `token.spot_pairs_latest` | `Token.SpotPairsLatest` | Yes |
+| `GET /v1/dex/platform/list` | Get platform list | `platform.list` | `platform.list` | `Platform.List` | Yes |
+| `GET /v1/dex/platform/detail` | Get platform detail | `platform.detail` | `platform.detail` | `Platform.Detail` | Yes |
+| `GET /v1/dex/search` | Search tokens | `token.search` | `token.search` | `Token.Search` | Yes |
+| `POST /v1/dex/gainer-loser/list` | Get top gainers and losers | `token.gainerLoserList` | `token.gainer_loser_list` | `Token.GainerLoserList` | No |
+| `GET /v1/dex/liquidity-change/list` | Get liquidity change list | `token.liquidityChangeList` | `token.liquidity_change_list` | `Token.LiquidityChangeList` | Yes |
+| `POST /v1/dex/meme/list` | Get meme tokens | `token.memeList` | `token.meme_list` | `Token.MemeList` | No |
+| `POST /v1/dex/new/list` | Get new tokens | `token.newList` | `token.new_list` | `Token.NewList` | No |
+| `GET /v1/dex/security/detail` | Get security detail | `token.securityDetail` | `token.security_detail` | `Token.SecurityDetail` | Yes |
+
+## Parameters and results
+
+TypeScript takes query parameters under `query`, with their API names: `{ query: { id: "1,1027", convert: "USD" } }`. It returns `{ data, error }`, where `data` is the parsed JSON body.
+
+Python takes them as keyword arguments in snake_case: `id="1,1027"`, `convert="USD"`. API names in camelCase become snake_case (`tokenAddress` → `token_address`), and `from` becomes `from_`. It returns a typed model; call `.to_dict()` for a plain dict.
+
+Go takes a params struct named after the method, with Go field names (`id` → `ID`, `tokenAddress` → `TokenAddress`): `&coinmarketcap.CryptocurrencyQuotesLatestParams{ID: coinmarketcap.String("1,1027")}`. Required fields are plain values. Optional fields are pointers; set them with `coinmarketcap.String`, `Int`, `Float64`, `Bool` or `Ptr`. Enum parameters have their own string types, for example `coinmarketcap.Ptr(coinmarketcap.GetV3CryptocurrencyQuotesHistoricalParamsInterval("1d"))`. Pass `nil` to send no parameters; methods without any parameters take only the context. It returns a typed response struct and an `error`.
+
+Pass values with the type the API reference gives. Some numeric-looking parameters are strings, for example `limit` on `/v3/cryptocurrency/listings/latest`.
+
+## POST endpoints
+
+POST endpoints take a JSON body. TypeScript passes it as `body`, Python wraps it in the request model named in the API reference, and Go takes the body struct named after the method:
+
+```typescript
+const { data, error } = await cmc.api.token.batchGetTokenPrice({
+  body: {
+    tokens: [
+      {
+        platform: "ethereum",
+        address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      },
+    ],
+  },
+});
+```
+
+```python
+from coinmarketcap.models import DqueryBatchPriceRequestDTO
+
+body = DqueryBatchPriceRequestDTO.from_dict({
+    "tokens": [
+        {
+            "platform": "ethereum",
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        },
+    ],
+})
+result = cmc.token.batch_get_token_price(body=body)
+```
+
+```go
+result, err := cmc.Token.BatchGetTokenPrice(context.Background(), coinmarketcap.TokenBatchGetTokenPriceBody{
+	Tokens: &[]coinmarketcap.PlatformAddress{
+		{
+			Platform: coinmarketcap.String("ethereum"),
+			Address:  coinmarketcap.String("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+		},
+	},
+})
+```
+
+## Errors
+
+All three SDKs map HTTP errors to typed errors: `AuthenticationError` (401), `ForbiddenError` (403, for example an endpoint your plan does not include), `RateLimitError` (429) and `CMCError` for the rest, with the API's `status.error_message`. TypeScript returns them as `error` and Python raises them. Go returns them as the `error` value; check the type with `errors.As`, for example `var rateLimited *coinmarketcap.RateLimitError`.
+
+Full guides: [TypeScript SDK](https://coinmarketcap.com/api/documentation/developer-tools/sdks/typescript), [Python SDK](https://coinmarketcap.com/api/documentation/developer-tools/sdks/python), [Go SDK](https://coinmarketcap.com/api/documentation/developer-tools/sdks/go).
