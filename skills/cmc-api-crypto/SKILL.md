@@ -63,7 +63,7 @@ See [use-cases.md](references/use-cases.md) for goal-based guidance on which end
 | GET /v1/cryptocurrency/trending/most-visited | Most visited on CMC | [trending.md](references/trending.md) |
 | GET /v2/cryptocurrency/info | Static metadata (logo, description, URLs) | [info.md](references/info.md) |
 | GET /v2/cryptocurrency/market-pairs/latest | Trading pairs for a coin | [market-pairs.md](references/market-pairs.md) |
-| GET /v2/cryptocurrency/ohlcv/historical | Historical OHLCV candles | [ohlcv.md](references/ohlcv.md) |
+| GET /v5/cryptocurrency/ohlcv/historical | Historical OHLCV candles | [ohlcv.md](references/ohlcv.md) |
 | GET /v2/cryptocurrency/ohlcv/latest | Latest OHLCV data | [ohlcv.md](references/ohlcv.md) |
 | GET /v2/cryptocurrency/price-performance-stats/latest | Price performance stats | [price-performance.md](references/price-performance.md) |
 | GET /v3/cryptocurrency/quotes/latest | Latest price quotes | [quotes.md](references/quotes.md) |
