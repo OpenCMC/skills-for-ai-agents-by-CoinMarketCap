@@ -144,21 +144,21 @@ curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/historic
 
 **Goal:** Get candlestick data for charting.
 
-**Endpoint:** `/v2/cryptocurrency/ohlcv/historical`
+**Endpoint:** `/v5/cryptocurrency/ohlcv/historical`
 
 **Steps:**
-1. Choose your interval (hourly, daily, weekly)
-2. Set time range or count
-3. Response includes open, high, low, close, volume for each period
+1. Choose your interval (`15m`, `1h`, `4h`, `1d`, `1w`, `1M`)
+2. Send `count` for the most recent candles, or `time_start` and `time_end` (without `count`) for a full range
+3. Each candle is a row of 10 values: open, high, low, close, volume, market cap, then the open, high, low and close times
 
 **Example:**
 ```bash
 # Daily candles for last 30 days
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/historical?id=1&interval=daily&count=30" \
+curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?id=1&interval=1d&count=30" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 
-# Hourly candles for a specific week
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/historical?id=1&time_start=2024-01-01&time_end=2024-01-07&interval=hourly" \
+# Hourly candles for the last 7 days (intraday history depends on your plan)
+curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?id=1&interval=1h&count=168" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
@@ -293,7 +293,7 @@ curl -X GET "https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=605
 | Top coins | `/v3/cryptocurrency/listings/latest` | `sort=market_cap` |
 | Price filter | `/v3/cryptocurrency/listings/latest` | `price_min`, `price_max`, `limit=5000` |
 | Historical price | `/v3/cryptocurrency/quotes/historical` | `time_start`, `time_end` |
-| OHLCV chart data | `/v2/cryptocurrency/ohlcv/historical` | `interval`, `count` |
+| OHLCV chart data | `/v5/cryptocurrency/ohlcv/historical` | `interval`, `count` |
 | Trading pairs | `/v2/cryptocurrency/market-pairs/latest` | `id`, `category` |
 | ATH/ATL | `/v2/cryptocurrency/price-performance-stats/latest` | `time_period=all_time` |
 | Gainers/losers | `/v1/cryptocurrency/trending/gainers-losers` | `sort_dir`, `time_period` |
