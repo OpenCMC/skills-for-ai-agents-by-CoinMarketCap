@@ -157,8 +157,8 @@ curl -X GET "https://pro-api.coinmarketcap.com/v3/cryptocurrency/quotes/historic
 curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?id=1&interval=1d&count=30" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 
-# Hourly candles for a specific week
-curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?id=1&interval=1h&time_start=2025-01-01&time_end=2025-01-07" \
+# Hourly candles for the last 7 days (intraday history depends on your plan)
+curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?id=1&interval=1h&count=168" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
