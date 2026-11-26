@@ -6,7 +6,7 @@ Use the official SDKs when you write code for the user. They are generated from 
 |----------|---------|--------|
 | JavaScript / TypeScript | `npm install @coinmarketcap/sdk` | `import { CoinMarketCap } from "@coinmarketcap/sdk"` |
 | Python 3.10+ | `pip install coinmarketcap-sdk` | `from coinmarketcap import CoinMarketCap` |
-| Go 1.24+ | `go get github.com/OpenCMC/coinmarketcap-api-go/v5` | `import "github.com/OpenCMC/coinmarketcap-api-go/v5"` (package `coinmarketcap`) |
+| Go 1.24+ | `go get github.com/OpenCMC/coinmarketcap-api-go/v6` | `import "github.com/OpenCMC/coinmarketcap-api-go/v6"` (package `coinmarketcap`) |
 
 ## Create a client
 
@@ -45,7 +45,7 @@ TypeScript methods hang off `cmc.api`, Python and Go methods off the client: `cm
 | `GET /v1/cryptocurrency/trending/most-visited` | Trending Most Visited | `cryptocurrency.trendingMostvisited` | `cryptocurrency.trending_mostvisited` | `Cryptocurrency.TrendingMostvisited` | No |
 | `GET /v2/cryptocurrency/info` | Metadata | `cryptocurrency.info` | `cryptocurrency.info` | `Cryptocurrency.Info` | Yes |
 | `GET /v2/cryptocurrency/market-pairs/latest` | Market Pairs Latest | `cryptocurrency.marketpairsLatest` | `cryptocurrency.marketpairs_latest` | `Cryptocurrency.MarketpairsLatest` | No |
-| `GET /v2/cryptocurrency/ohlcv/historical` | OHLCV Historical | `cryptocurrency.ohlcvHistorical` | `cryptocurrency.ohlcv_historical` | `Cryptocurrency.OhlcvHistorical` | No |
+| `GET /v5/cryptocurrency/ohlcv/historical` | OHLCV Historical | `cryptocurrency.ohlcvHistorical` | `cryptocurrency.ohlcv_historical` | `Cryptocurrency.OhlcvHistorical` | No |
 | `GET /v2/cryptocurrency/ohlcv/latest` | OHLCV Latest | `cryptocurrency.ohlcvLatest` | `cryptocurrency.ohlcv_latest` | `Cryptocurrency.OhlcvLatest` | No |
 | `GET /v2/cryptocurrency/price-performance-stats/latest` | Price Performance Stats | `cryptocurrency.priceperformancestatsLatest` | `cryptocurrency.priceperformancestats_latest` | `Cryptocurrency.PriceperformancestatsLatest` | No |
 | `GET /v3/cryptocurrency/quotes/latest` | Quotes Latest | `cryptocurrency.quotesLatest` | `cryptocurrency.quotes_latest` | `Cryptocurrency.QuotesLatest` | Yes |

@@ -6,7 +6,7 @@ Use the official SDKs when you write code for the user. They are generated from 
 |----------|---------|--------|
 | JavaScript / TypeScript | `npm install @coinmarketcap/sdk` | `import { CoinMarketCap } from "@coinmarketcap/sdk"` |
 | Python 3.10+ | `pip install coinmarketcap-sdk` | `from coinmarketcap import CoinMarketCap` |
-| Go 1.24+ | `go get github.com/OpenCMC/coinmarketcap-api-go/v5` | `import "github.com/OpenCMC/coinmarketcap-api-go/v5"` (package `coinmarketcap`) |
+| Go 1.24+ | `go get github.com/OpenCMC/coinmarketcap-api-go/v6` | `import "github.com/OpenCMC/coinmarketcap-api-go/v6"` (package `coinmarketcap`) |
 
 ## Create a client
 

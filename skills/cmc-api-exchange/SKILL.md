@@ -38,7 +38,7 @@ When the user wants a script, an app or an integration rather than a one-off loo
 
 - JavaScript / TypeScript: `npm install @coinmarketcap/sdk`
 - Python: `pip install coinmarketcap-sdk`, imported as `coinmarketcap`
-- Go: `go get github.com/OpenCMC/coinmarketcap-api-go/v5`, imported as `coinmarketcap`
+- Go: `go get github.com/OpenCMC/coinmarketcap-api-go/v6`, imported as `coinmarketcap`
 
 ```typescript
 import { CoinMarketCap } from "@coinmarketcap/sdk";
@@ -63,7 +63,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/OpenCMC/coinmarketcap-api-go/v5"
+	"github.com/OpenCMC/coinmarketcap-api-go/v6"
 )
 
 cmc, err := coinmarketcap.New(coinmarketcap.WithAPIKey(os.Getenv("CMC_PRO_API_KEY")))
