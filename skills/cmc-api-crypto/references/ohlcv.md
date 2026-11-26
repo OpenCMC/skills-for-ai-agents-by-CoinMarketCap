@@ -91,60 +91,72 @@ curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/latest?sy
 
 ## OHLCV Historical
 
-**Path:** `GET /v2/cryptocurrency/ohlcv/historical`
+**Path:** `GET /v5/cryptocurrency/ohlcv/historical`
 
-**Description:** Returns historical OHLCV candles for a cryptocurrency. Useful for building price charts and technical analysis.
+**Description:** Returns historical OHLCV candles for one cryptocurrency, with the market cap and the times of the high and the low in each candle. Each candle is a compact row of 10 values, oldest first, so long histories stay small and load straight into charting and analysis tools.
+
+This is the current OHLCV Historical endpoint. The older `GET /v2/cryptocurrency/ohlcv/historical` is deprecated: use v5 for new code.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| id | string | Conditional | CMC cryptocurrency ID |
-| slug | string | Conditional | Cryptocurrency slug |
-| symbol | string | Conditional | Cryptocurrency symbol |
-| time_period | string | No | Time period for each candle: daily, hourly. Default: daily |
-| time_start | string | No | Start time (ISO 8601 or Unix timestamp) |
-| time_end | string | No | End time (ISO 8601 or Unix timestamp) |
-| count | integer | No | Number of candles. Default: 10, Max: 10000 |
-| interval | string | No | Candle interval: hourly, daily, weekly, monthly, yearly, 1h, 2h, 3h, 4h, 6h, 12h, 1d, 2d, 3d, 7d, 14d, 15d, 30d, 60d, 90d, 365d. Default: daily |
-| convert | string | No | Currency to convert (e.g., USD) |
-| convert_id | string | No | CMC ID of currency to convert to |
-| skip_invalid | boolean | No | Skip invalid values. Default: false |
+| id | string | Conditional | One CMC cryptocurrency ID, e.g. `1` |
+| slug | string | Conditional | One cryptocurrency slug, e.g. `bitcoin` |
+| interval | string | Yes | Candle period: `15m`, `1h`, `4h`, `1d`, `1w` (weeks start Monday), `1M` (calendar month). Case-sensitive: `1m` is not accepted |
+| time_start | string | No | Start of the window, inclusive (Unix timestamp or ISO 8601), rounded down to the start of its period |
+| time_end | string | No | End of the window, inclusive (Unix timestamp or ISO 8601) |
+| count | integer | No | Number of candles, 1 to 10000. Defaults to 10 unless you send both `time_start` and `time_end` |
+| convert_id | string | No | One CMC currency ID for prices, volume and market cap. Default: `2781` (USD) |
 
-**Note:** At least one of `id`, `slug`, or `symbol` is required.
+**Note:** Send exactly one of `id` or `slug`. v5 rejects parameters it doesn't support (`symbol`, `convert`, `time_period`, `skip_invalid`) with a `400` error. To look up an ID from a symbol, use `/v1/cryptocurrency/map` first. For several currencies, make one request per `convert_id`.
+
+### Time Window
+
+`time_start` and `time_end` are inclusive and rounded down to the start of their period in UTC.
+
+| You send | You get |
+|----------|---------|
+| `time_start` and `time_end` | Every period in the range, up to 10000 |
+| `time_start` and `count` | `count` periods starting at `time_start` |
+| `time_end` and `count` | `count` periods ending with the period that contains `time_end` |
+| `time_start`, `time_end` and `count` | `count` periods starting at `time_start` (`time_end` doesn't change the window) |
+| Neither `time_start` nor `time_end` | The `count` most recent completed periods |
+
+To get a full date range, send `time_start` and `time_end` without `count`.
 
 ### Response Fields
 
-| Field | Description |
-|-------|-------------|
-| data.id | CMC cryptocurrency ID |
-| data.name | Cryptocurrency name |
-| data.symbol | Cryptocurrency symbol |
-| data.quotes[].time_open | Candle open time |
-| data.quotes[].time_close | Candle close time |
-| data.quotes[].time_high | Time of high |
-| data.quotes[].time_low | Time of low |
-| data.quotes[].quote.USD.open | Opening price |
-| data.quotes[].quote.USD.high | High price |
-| data.quotes[].quote.USD.low | Low price |
-| data.quotes[].quote.USD.close | Closing price |
-| data.quotes[].quote.USD.volume | Volume in period |
-| data.quotes[].quote.USD.market_cap | Market cap at close |
-| data.quotes[].quote.USD.timestamp | Data timestamp |
+`data` is an array of candles, oldest first. Each candle is an array of 10 values in a fixed order, so read them by position:
+
+| Index | Field | Description |
+|-------|-------|-------------|
+| 0 | openPrice | Open price |
+| 1 | highPrice | Highest price in the period |
+| 2 | lowPrice | Lowest price in the period |
+| 3 | closePrice | Close price |
+| 4 | volume | Trading volume in the period |
+| 5 | marketcap | Market cap at the close |
+| 6 | openTime | Start of the period (ISO 8601, UTC) |
+| 7 | highTime | Time of the high |
+| 8 | lowTime | Time of the low |
+| 9 | closeTime | End of the period, e.g. `2025-01-02T23:59:59.999Z` |
+
+A value that isn't available is `null` in its position. Periods with no data, future periods and the period that is still open are left out, so a window with no data returns an empty `data` array.
 
 ### Example
 
 ```bash
-# Get daily candles for last 30 days
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/historical?id=1&interval=daily&count=30" \
+# Last 30 daily candles
+curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?id=1&interval=1d&count=30" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 
-# Get hourly candles for specific date range
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/historical?id=1&time_start=2024-01-01&time_end=2024-01-07&interval=hourly" \
+# Hourly candles for the last 7 days (intraday history depends on your plan)
+curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?id=1&interval=1h&count=168" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 
-# Get weekly candles for 2023
-curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/historical?symbol=BTC&time_start=2023-01-01&time_end=2023-12-31&interval=weekly" \
+# Weekly candles for 2025, by slug
+curl -X GET "https://pro-api.coinmarketcap.com/v5/cryptocurrency/ohlcv/historical?slug=ethereum&interval=1w&time_start=2025-01-01&time_end=2025-12-31" \
   -H "X-CMC_PRO_API_KEY: your-api-key"
 ```
 
@@ -152,66 +164,52 @@ curl -X GET "https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/historica
 
 ```json
 {
-  "status": {
-    "timestamp": "2024-01-15T12:00:00.000Z",
-    "error_code": 0,
-    "error_message": null,
-    "credit_count": 1
-  },
-  "data": {
-    "id": 1,
-    "name": "Bitcoin",
-    "symbol": "BTC",
-    "quotes": [
-      {
-        "time_open": "2024-01-01T00:00:00.000Z",
-        "time_close": "2024-01-01T23:59:59.999Z",
-        "time_high": "2024-01-01T18:30:00.000Z",
-        "time_low": "2024-01-01T06:15:00.000Z",
-        "quote": {
-          "USD": {
-            "open": 42345.67,
-            "high": 43456.78,
-            "low": 41234.56,
-            "close": 42890.12,
-            "volume": 22345678901,
-            "market_cap": 840123456789,
-            "timestamp": "2024-01-02T00:00:00.000Z"
-          }
-        }
-      },
-      {
-        "time_open": "2024-01-02T00:00:00.000Z",
-        "time_close": "2024-01-02T23:59:59.999Z",
-        "time_high": "2024-01-02T12:45:00.000Z",
-        "time_low": "2024-01-02T22:10:00.000Z",
-        "quote": {
-          "USD": {
-            "open": 42890.12,
-            "high": 44567.89,
-            "low": 42100.00,
-            "close": 43567.89,
-            "volume": 24567890123,
-            "market_cap": 853456789012,
-            "timestamp": "2024-01-03T00:00:00.000Z"
-          }
-        }
-      }
+  "data": [
+    [
+      78559.1131265811,
+      78748.50143864893,
+      78549.03085271013,
+      78727.98306878311,
+      30034635342.11,
+      1580696743839.83,
+      "2026-09-01T00:00:00.000Z",
+      "2026-09-01T00:12:00.000Z",
+      "2026-09-01T00:01:00.000Z",
+      "2026-09-01T00:14:59.999Z"
+    ],
+    [
+      78737.76559810448,
+      78881.55883757334,
+      78737.76559810448,
+      78854.57252549069,
+      30041940429.35,
+      1583238401001.9,
+      "2026-09-01T00:15:00.000Z",
+      "2026-09-01T00:28:00.000Z",
+      "2026-09-01T00:15:00.000Z",
+      "2026-09-01T00:29:59.999Z"
     ]
+  ],
+  "status": {
+    "timestamp": "2026-11-11T10:18:24.323Z",
+    "error_code": "0",
+    "error_message": "",
+    "elapsed": 31,
+    "credit_count": 1
   }
 }
 ```
 
 ### Important Notes
 
-1. **Interval selection**: Match your interval to your analysis needs. Daily candles for long-term trends, hourly for intraday analysis.
+1. **Plans**: Startup and above. Intraday (`15m`, `1h`, `4h`) history: Startup 1 month, Growth 3 months, Professional 12 months, Enterprise from 2010. Daily (`1d`, `1w`, `1M`) history from 2010 on every plan that has the endpoint.
 
-2. **Time alignment**: Candles align to UTC boundaries. Daily candles open at 00:00 UTC.
+2. **Credit usage**: 1 credit per 100 candles returned, rounded up. A request that returns no candles costs 0 credits.
 
-3. **Historical availability**: Historical data availability varies by plan and cryptocurrency. Older, less popular coins may have limited history.
+3. **Time alignment**: Candles align to UTC boundaries. `1d` candles open at 00:00 UTC, `1w` on Mondays, `1M` on the first day of the month.
 
-4. **Volume calculation**: Volume represents total trading volume across all exchanges tracked by CMC during the period.
+4. **Completed periods only**: Each candle is returned once its period has closed.
 
-5. **Missing data**: Some candles may be missing due to data gaps. Handle null values in your code.
+5. **Volume calculation**: Volume is total trading volume across all exchanges tracked by CMC during the period.
 
-6. **Credit usage**: Each historical request consumes credits based on the amount of data returned.
+6. **Missing data**: Handle `null` values in a candle row in your code.
